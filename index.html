@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTArq — Cidade da Arquitetura Computacional</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- =========================================================
+       CANVAS PRINCIPAL (visão top-down estilo GTA 2)
+       ========================================================= -->
+  <canvas id="game"></canvas>
+
+  <!-- =========================================================
+       HUD (estética GTA 3)
+       ========================================================= -->
+  <div id="hud">
+
+    <!-- Caixa de missão (topo esquerdo) -->
+    <div id="mission-box">
+      <div class="mission-title">MISSÃO ATUAL</div>
+      <div id="mission-text">Explore a cidade e encontre um terminal luminoso.</div>
+      <div id="mission-progress">TERMINAIS: 0 / 15</div>
+    </div>
+
+    <!-- Status (topo direito): grana, estrelas de procurado, integridade -->
+    <div id="status-box">
+      <div id="money">$0</div>
+      <div id="wanted">
+        <span class="star" data-i="0">★</span>
+        <span class="star" data-i="1">★</span>
+        <span class="star" data-i="2">★</span>
+        <span class="star" data-i="3">★</span>
+        <span class="star" data-i="4">★</span>
+      </div>
+      <div id="wanted-label" class="hidden">POLÍCIA A CAMINHO!</div>
+      <div id="integrity-wrap">
+        <span class="bar-label">VIDA</span>
+        <div class="bar"><div id="integrity-bar"></div></div>
+      </div>
+    </div>
+
+    <!-- Seta indicadora do terminal alvo (topo centro) -->
+    <div id="indicator">
+      <div id="arrow">▲</div>
+      <div id="indicator-text">TERMINAL</div>
+    </div>
+
+    <!-- Radar / minimapa (canto inferior esquerdo) -->
+    <div id="radar-wrap">
+      <canvas id="radar" width="180" height="180"></canvas>
+      <div id="radar-label">CIDADE TECH</div>
+    </div>
+
+    <!-- Prompt de interação -->
+    <div id="prompt" class="hidden">Pressione <b>E</b> ou <b>ENTER</b> para acessar o terminal</div>
+
+    <!-- Botão reiniciar (sempre visível) -->
+    <button id="btn-restart" title="Reiniciar o jogo do zero">REINICIAR JOGO</button>
+
+    <!-- Legenda de controles -->
+    <div id="controls-hint">WASD / SETAS: mover &nbsp;•&nbsp; E / ENTER: interagir &nbsp;•&nbsp; CUIDADO COM O TRÂNSITO E A POLÍCIA</div>
+  </div>
+
+  <!-- =========================================================
+       MODAL DE MISSÃO (pergunta de múltipla escolha)
+       ========================================================= -->
+  <div id="modal" class="overlay hidden">
+    <div class="modal-panel">
+      <div id="modal-district" class="modal-district">DISTRITO</div>
+      <div class="modal-body">
+        <div class="modal-tag">TERMINAL DE ARQUITETURA</div>
+        <h2 id="modal-question">Pergunta...</h2>
+        <div id="modal-options"></div>
+        <div id="modal-hint" class="hidden"></div>
+        <div id="modal-feedback" class="hidden"></div>
+        <button id="btn-continue" class="hidden">CONTINUAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TELA DE DERROTA (5 estrelas = BUSTED)
+       ========================================================= -->
+  <div id="busted" class="overlay hidden">
+    <div class="busted-panel">
+      <div class="busted-line1">SE FERROU</div>
+      <div class="busted-line2">BUSTED</div>
+      <div class="busted-desc">A polícia da cidade tech te alcançou! Estrelas altas significam perseguição — acerte os terminais para baixar a temperatura.</div>
+      <button id="btn-busted-restart">REINICIAR</button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TELA DE DERROTA (vida zerada = WASTED / atropelado)
+       ========================================================= -->
+  <div id="wasted" class="overlay hidden">
+    <div class="wasted-panel">
+      <div class="wasted-line1">VIDAS ACABARAM</div>
+      <div class="wasted-line2">WASTED</div>
+      <div class="wasted-desc">Sua vida chegou a zero: erros de resposta e atropelamentos do trânsito da cidade tech foram demais. Atenção ao asfalto!</div>
+      <button id="btn-wasted-restart">REINICIAR</button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TELA DE VITÓRIA (15 missões concluídas)
+       ========================================================= -->
+  <div id="victory" class="overlay hidden">
+    <div class="victory-panel">
+      <div class="victory-line1">RESPEITO MÁXIMO</div>
+      <div class="victory-line2">CIDADE DOMINADA</div>
+      <div class="victory-stats">
+        <div><span>PONTUAÇÃO TOTAL</span><b id="victory-score">$0</b></div>
+        <div><span>MISSÕES COMPLETAS</span><b id="victory-missions">15 / 15</b></div>
+        <div><span>ERROS COMETIDOS</span><b id="victory-errors">0</b></div>
+      </div>
+      <button id="btn-victory-restart">JOGAR NOVAMENTE</button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TELA INICIAL
+       ========================================================= -->
+  <div id="title" class="overlay">
+    <div class="title-panel">
+      <div class="title-logo">GTArq</div>
+      <div class="title-sub">A CIDADE DA ARQUITETURA COMPUTACIONAL</div>
+      <div class="title-desc">
+        Navegue pelas 4 regiões da cidade tech, acesse os 15 terminais e responda
+        as perguntas de Arquitetura Computacional. Acerte para ganhar grana e
+        respeito; erre e a polícia de alta tecnologia vai atrás de você!
+      </div>
+      <div class="title-rules">
+        <b>CONTROLES:</b> WASD ou SETAS para mover • E ou ENTER para interagir<br>
+        <b>REGRAS:</b> Certeza = +$1.000 e −1 estrela • Erro = +1 estrela (máx. 5 = BUSTED)<br>
+        <b>PERIGO:</b> Atropelamento = −22 de vida (zero = WASTED) • Estrelas = polícia persegue e prende ao encostar
+      </div>
+      <button id="btn-start">COMEÇAR</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

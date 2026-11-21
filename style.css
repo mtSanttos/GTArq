@@ -1,0 +1,489 @@
+/* ==========================================================================
+   GTArq — Estilo visual inspirado no HUD clássico do GTA 3 / GTA 2
+   Sem dependências externas: usa apenas fontes do sistema (Impact/Arial)
+   ========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #05060a;
+  font-family: Arial, Helvetica, sans-serif;
+  user-select: none;
+}
+
+/* Canvas principal ocupa toda a tela */
+#game {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hidden { display: none !important; }
+
+/* ==========================================================================
+   HUD
+   ========================================================================== */
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;   /* só os botões recebem clique */
+  z-index: 10;
+}
+
+/* ---------- Caixa de missão (canto superior esquerdo) ---------- */
+#mission-box {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 300px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.72);
+  border-left: 4px solid #ff9d00;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+}
+.mission-title {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  color: #ff9d00;
+}
+#mission-text {
+  font-size: 13px;
+  margin-top: 5px;
+  line-height: 1.35;
+}
+#mission-progress {
+  margin-top: 7px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #7CE7FF;
+}
+
+/* ---------- Status: grana / estrelas / integridade ---------- */
+#status-box {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  min-width: 230px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.72);
+  border-right: 4px solid #ff9d00;
+  text-align: right;
+  color: #fff;
+}
+#money {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 30px;
+  color: #7CE77C;
+  text-shadow: 2px 2px 0 #000;
+  letter-spacing: 1px;
+}
+#wanted {
+  margin-top: 4px;
+  font-size: 24px;
+  line-height: 1;
+}
+#wanted .star {
+  color: #3a3a42;
+  text-shadow: 1px 1px 0 #000;
+  margin-left: 3px;
+}
+#wanted .star.on {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.9);
+}
+#wanted-label {
+  margin-top: 5px;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  animation: siren 0.7s steps(1) infinite;
+}
+@keyframes siren {
+  0%, 49%   { color: #ff4d4d; text-shadow: 0 0 8px rgba(255, 0, 0, 0.8); }
+  50%, 100% { color: #4d8bff; text-shadow: 0 0 8px rgba(60, 120, 255, 0.8); }
+}
+#integrity-wrap {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.bar-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #bbb;
+}
+.bar {
+  width: 120px;
+  height: 12px;
+  background: #222;
+  border: 1px solid #555;
+}
+#integrity-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(#7CE77C, #2e9e2e);
+  transition: width 0.25s;
+}
+
+/* ---------- Seta indicadora (topo centro) ---------- */
+#indicator {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #fff;
+}
+#arrow {
+  font-size: 34px;
+  color: #7CE7FF;
+  text-shadow: 0 0 10px rgba(124, 231, 255, 0.9), 2px 2px 0 #000;
+  transform-origin: center;
+  line-height: 1;
+}
+#indicator-text {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  margin-top: 3px;
+  text-shadow: 1px 1px 2px #000;
+}
+
+/* ---------- Radar / minimapa ---------- */
+#radar-wrap {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  text-align: center;
+}
+#radar {
+  display: block;
+  background: rgba(0, 0, 0, 0.75);
+  border: 4px solid #111;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #ff9d00, 0 0 18px rgba(0, 0, 0, 0.9);
+}
+#radar-label {
+  margin-top: 4px;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #ff9d00;
+  text-shadow: 1px 1px 2px #000;
+}
+
+/* ---------- Prompt de interação ---------- */
+#prompt {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #ff9d00;
+  color: #fff;
+  padding: 8px 18px;
+  font-size: 14px;
+  text-shadow: 1px 1px 2px #000;
+}
+#prompt b { color: #7CE7FF; }
+
+/* ---------- Botão reiniciar (sempre visível) ---------- */
+#btn-restart {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  pointer-events: auto;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  border: 2px solid #ff9d00;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+#btn-restart:hover { background: #ff9d00; color: #000; }
+
+/* ---------- Legenda de controles ---------- */
+#controls-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 1px 1px 2px #000;
+}
+
+/* ==========================================================================
+   OVERLAYS (modal, busted, victory, title)
+   ========================================================================== */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Modal de missão ---------- */
+.modal-panel {
+  width: min(720px, 92vw);
+  background: #0d0e14;
+  border: 3px solid #ff9d00;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+}
+.modal-district {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #000;
+  background: #ff9d00;
+  padding: 8px 18px;
+}
+.modal-body { padding: 18px 22px 22px; }
+.modal-tag {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #7CE7FF;
+}
+#modal-question {
+  font-size: 19px;
+  color: #fff;
+  line-height: 1.35;
+  margin: 10px 0 16px;
+  font-weight: bold;
+}
+#modal-options { display: flex; flex-direction: column; gap: 9px; }
+.opt-btn {
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.3;
+  color: #eee;
+  background: #1a1c26;
+  border: 2px solid #333;
+  padding: 11px 14px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.opt-btn:hover { background: #262a3a; border-color: #ff9d00; }
+.opt-btn .key {
+  display: inline-block;
+  min-width: 20px;
+  font-family: Impact, 'Arial Black', sans-serif;
+  color: #ff9d00;
+  margin-right: 8px;
+}
+.opt-btn.correct {
+  background: #103a10;
+  border-color: #7CE77C;
+  color: #b9ffb9;
+}
+.opt-btn.wrong {
+  background: #3a1010;
+  border-color: #ff5555;
+  color: #ffb3b3;
+}
+.opt-btn:disabled { cursor: default; opacity: 0.85; }
+
+#modal-hint {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 157, 0, 0.12);
+  border-left: 4px solid #ff9d00;
+  color: #ffd9a0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+#modal-feedback {
+  margin-top: 14px;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 24px;
+  letter-spacing: 1.5px;
+  color: #7CE77C;
+  text-shadow: 2px 2px 0 #000;
+}
+#btn-continue {
+  margin-top: 16px;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: #000;
+  background: #7CE77C;
+  border: none;
+  padding: 11px 26px;
+  cursor: pointer;
+}
+#btn-continue:hover { background: #a5ffA5; }
+
+/* ---------- Tela BUSTED ---------- */
+#busted { background: rgba(0, 0, 0, 0.88); }
+.busted-panel { text-align: center; }
+.busted-line1 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(48px, 10vw, 110px);
+  color: #ff3b3b;
+  letter-spacing: 4px;
+  text-shadow: 4px 4px 0 #000, 0 0 30px rgba(255, 0, 0, 0.6);
+}
+.busted-line2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(34px, 7vw, 76px);
+  color: #fff;
+  letter-spacing: 10px;
+  text-shadow: 3px 3px 0 #000;
+}
+.busted-desc {
+  color: #ccc;
+  max-width: 520px;
+  margin: 22px auto 26px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+#btn-busted-restart,
+#btn-victory-restart,
+#btn-start {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: #000;
+  background: #ff9d00;
+  border: none;
+  padding: 14px 40px;
+  cursor: pointer;
+}
+#btn-busted-restart:hover,
+#btn-victory-restart:hover,
+#btn-start:hover { background: #ffc35c; }
+
+/* ---------- Tela WASTED (vida zerada) ---------- */
+#wasted { background: rgba(18, 0, 0, 0.9); }
+.wasted-panel { text-align: center; }
+.wasted-line1 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(40px, 8vw, 92px);
+  color: #fff;
+  letter-spacing: 4px;
+  text-shadow: 4px 4px 0 #000, 0 0 30px rgba(255, 255, 255, 0.35);
+}
+.wasted-line2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(34px, 7vw, 76px);
+  color: #ff3b3b;
+  letter-spacing: 10px;
+  text-shadow: 3px 3px 0 #000, 0 0 30px rgba(255, 0, 0, 0.6);
+}
+.wasted-desc {
+  color: #ccc;
+  max-width: 520px;
+  margin: 22px auto 26px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+#btn-wasted-restart {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: #000;
+  background: #ff9d00;
+  border: none;
+  padding: 14px 40px;
+  cursor: pointer;
+}
+#btn-wasted-restart:hover { background: #ffc35c; }
+
+/* ---------- Tela de vitória ---------- */
+.victory-panel { text-align: center; }
+.victory-line1 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(40px, 8vw, 92px);
+  color: #ffd700;
+  letter-spacing: 4px;
+  text-shadow: 4px 4px 0 #000, 0 0 30px rgba(255, 215, 0, 0.5);
+}
+.victory-line2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(26px, 5vw, 54px);
+  color: #fff;
+  letter-spacing: 8px;
+  text-shadow: 3px 3px 0 #000;
+  margin-bottom: 24px;
+}
+.victory-stats {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #ff9d00;
+  padding: 18px 34px;
+  margin-bottom: 26px;
+  text-align: left;
+}
+.victory-stats div {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  font-size: 14px;
+  color: #aaa;
+  letter-spacing: 1px;
+}
+.victory-stats b {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 20px;
+  color: #7CE77C;
+}
+
+/* ---------- Tela inicial ---------- */
+.title-panel {
+  text-align: center;
+  max-width: 660px;
+  padding: 30px;
+}
+.title-logo {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(70px, 14vw, 150px);
+  color: #ff9d00;
+  letter-spacing: 6px;
+  line-height: 1;
+  text-shadow: 5px 5px 0 #000, 0 0 40px rgba(255, 157, 0, 0.45);
+}
+.title-sub {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(14px, 2.4vw, 22px);
+  color: #fff;
+  letter-spacing: 5px;
+  margin: 10px 0 20px;
+  text-shadow: 2px 2px 0 #000;
+}
+.title-desc {
+  color: #ccc;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.title-rules {
+  color: #ffd9a0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  background: rgba(0, 0, 0, 0.6);
+  border-left: 4px solid #ff9d00;
+  padding: 12px 16px;
+  margin-bottom: 26px;
+  text-align: left;
+}
