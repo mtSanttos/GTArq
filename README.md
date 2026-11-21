@@ -1,5 +1,7 @@
 # GTArq — A Cidade da Arquitetura Computacional
 
+> *"De um grande fã de GTA, esse é o GTArq: um jogo educativo da disciplina de Arquitetura Computacional na São Paulo Tech School."*
+
 **GTArq** é um jogo educativo de navegador que ensina **Arquitetura Computacional** de forma interativa, com visual inspirado no **GTA 2** (visão top-down 2D em canvas) e no **HUD clássico do GTA 3** (fontes de impacto, minimapa, caixa de missão, estrelas de procurado, viaturas da polícia).
 
 Você é um estudante navegando por uma cidade tecnológica noturna dividida em **4 distritos**, com a missão de acessar **15 terminais luminosos** e responder perguntas de múltipla escolha sobre CPU, memórias, barramentos e DMA — enquanto esquiva do trânsito e da polícia.
