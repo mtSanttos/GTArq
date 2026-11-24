@@ -448,7 +448,7 @@
   /* ==========================================================================
      5. ESTADO GLOBAL DO JOGO
      ========================================================================== */
-  const START_POS = { x: 1565, y: 1265 };
+  const START_POS = { x: 1507, y: 1207 };
   const PLAYER_R = 14;
   const PLAYER_BASE_SPEED = 260;
   const PLAYER_SPRINT_SPEED = 380;
@@ -1192,6 +1192,7 @@
     sfx.startIntro();
     dom.title.classList.add('hidden');
     state.mode = 'playing';
+    state.invuln = 1.5;
   });
 
   /* ==========================================================================
@@ -1338,7 +1339,7 @@
 
     const dpadButtons = document.querySelectorAll('.touch-btn');
     dpadButtons.forEach(btn => {
-      const dir = btn.dataset.dir;
+      const dir = btn.dataset?.dir || btn.getAttribute('data-dir');
       const activate = e => { e.preventDefault(); state.touchKeys.add(dir); btn.classList.add('active'); };
       const deactivate = e => { e.preventDefault(); state.touchKeys.delete(dir); btn.classList.remove('active'); };
 
@@ -1622,7 +1623,7 @@
     // Sombra oval sob o personagem
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath();
-    ctx.ellipse(2, 4, 13, 10, 0, Math.PI * 2);
+    ctx.ellipse(2, 4, 13, 10, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Pisca durante invulnerabilidade pós-atropelamento
