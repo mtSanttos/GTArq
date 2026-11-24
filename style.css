@@ -16,6 +16,8 @@ html, body {
   background: #05060a;
   font-family: Arial, Helvetica, sans-serif;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
 }
 
 /* Canvas principal ocupa toda a tela */
@@ -36,7 +38,7 @@ html, body {
 #hud {
   position: absolute;
   inset: 0;
-  pointer-events: none;   /* só os botões recebem clique */
+  pointer-events: none;   /* botões específicos habilitam clique */
   z-index: 10;
 }
 
@@ -45,12 +47,14 @@ html, body {
   position: absolute;
   top: 14px;
   left: 14px;
-  width: 300px;
+  width: min(320px, calc(100vw - 28px));
   padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.78);
   border-left: 4px solid #ff9d00;
   color: #fff;
   text-shadow: 1px 1px 2px #000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
 }
 .mission-title {
   font-family: Impact, 'Arial Black', sans-serif;
@@ -70,18 +74,55 @@ html, body {
   color: #7CE7FF;
 }
 
-/* ---------- Status: grana / estrelas / integridade ---------- */
+/* ---------- Status: grana / estrelas / integridade / fôlego / botões ---------- */
 #status-box {
   position: absolute;
   top: 14px;
   right: 14px;
   min-width: 230px;
   padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.78);
   border-right: 4px solid #ff9d00;
   text-align: right;
   color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
 }
+
+.status-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.hud-icon-btn {
+  background: rgba(25, 27, 36, 0.85);
+  color: #ff9d00;
+  border: 1px solid #444;
+  padding: 4px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.15s, border-color 0.15s;
+}
+.hud-icon-btn:hover {
+  background: #ff9d00;
+  color: #000;
+  border-color: #ff9d00;
+}
+
+#hud-timer {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 15px;
+  color: #7CE7FF;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 #000;
+  min-width: 50px;
+  text-align: right;
+}
+
 #money {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 30px;
@@ -114,8 +155,9 @@ html, body {
   0%, 49%   { color: #ff4d4d; text-shadow: 0 0 8px rgba(255, 0, 0, 0.8); }
   50%, 100% { color: #4d8bff; text-shadow: 0 0 8px rgba(60, 120, 255, 0.8); }
 }
-#integrity-wrap {
-  margin-top: 8px;
+
+#integrity-wrap, #stamina-wrap {
+  margin-top: 6px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -125,18 +167,25 @@ html, body {
   font-size: 10px;
   letter-spacing: 1px;
   color: #bbb;
+  font-weight: bold;
 }
 .bar {
   width: 120px;
-  height: 12px;
-  background: #222;
-  border: 1px solid #555;
+  height: 11px;
+  background: #191b22;
+  border: 1px solid #444;
 }
 #integrity-bar {
   height: 100%;
   width: 100%;
   background: linear-gradient(#7CE77C, #2e9e2e);
-  transition: width 0.25s;
+  transition: width 0.2s ease-out;
+}
+#stamina-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(#7CE7FF, #2980b9);
+  transition: width 0.08s linear;
 }
 
 /* ---------- Seta indicadora (topo centro) ---------- */
@@ -147,6 +196,7 @@ html, body {
   transform: translateX(-50%);
   text-align: center;
   color: #fff;
+  pointer-events: none;
 }
 #arrow {
   font-size: 34px;
@@ -172,7 +222,7 @@ html, body {
 }
 #radar {
   display: block;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8);
   border: 4px solid #111;
   border-radius: 50%;
   box-shadow: 0 0 0 2px #ff9d00, 0 0 18px rgba(0, 0, 0, 0.9);
@@ -189,15 +239,17 @@ html, body {
 /* ---------- Prompt de interação ---------- */
 #prompt {
   position: absolute;
-  bottom: 90px;
+  bottom: 86px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.88);
   border: 1px solid #ff9d00;
   color: #fff;
   padding: 8px 18px;
   font-size: 14px;
   text-shadow: 1px 1px 2px #000;
+  box-shadow: 0 0 14px rgba(255, 157, 0, 0.4);
+  white-space: nowrap;
 }
 #prompt b { color: #7CE7FF; }
 
@@ -211,10 +263,11 @@ html, body {
   font-size: 14px;
   letter-spacing: 1.5px;
   color: #fff;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8);
   border: 2px solid #ff9d00;
   padding: 9px 16px;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 #btn-restart:hover { background: #ff9d00; color: #000; }
 
@@ -225,29 +278,109 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.65);
   text-shadow: 1px 1px 2px #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- Controles Virtuais Touch (Mobile) ---------- */
+#touch-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+#touch-dpad {
+  position: absolute;
+  bottom: 24px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+}
+.touch-mid-row {
+  display: flex;
+  align-items: center;
+}
+.touch-center {
+  width: 44px;
+  height: 44px;
+}
+.touch-btn {
+  width: 50px;
+  height: 50px;
+  background: rgba(20, 24, 34, 0.75);
+  border: 2px solid rgba(255, 157, 0, 0.6);
+  border-radius: 8px;
+  color: #ff9d00;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+}
+.touch-btn:active, .touch-btn.active {
+  background: #ff9d00;
+  color: #000;
+}
+#touch-actions {
+  position: absolute;
+  bottom: 28px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+}
+.touch-action-btn {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 14px 20px;
+  background: rgba(20, 24, 34, 0.85);
+  color: #fff;
+  border: 2px solid #7CE7FF;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: none;
+}
+#touch-sprint {
+  border-color: #ffd700;
+  color: #ffd700;
+}
+.touch-action-btn:active, .touch-action-btn.active {
+  background: #7CE7FF;
+  color: #000;
+}
+#touch-sprint:active, #touch-sprint.active {
+  background: #ffd700;
+  color: #000;
 }
 
 /* ==========================================================================
-   OVERLAYS (modal, busted, victory, title)
+   OVERLAYS (modal, busted, wasted, victory, title, pause)
    ========================================================================== */
 .overlay {
   position: absolute;
   inset: 0;
   z-index: 50;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.78);
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
 }
 
 /* ---------- Modal de missão ---------- */
 .modal-panel {
   width: min(720px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
   background: #0d0e14;
   border: 3px solid #ff9d00;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95);
 }
 .modal-district {
   font-family: Impact, 'Arial Black', sans-serif;
@@ -329,11 +462,84 @@ html, body {
   border: none;
   padding: 11px 26px;
   cursor: pointer;
+  transition: background 0.15s;
 }
 #btn-continue:hover { background: #a5ffA5; }
 
+/* ---------- Tela de Pausa ---------- */
+#pause { background: rgba(0, 0, 0, 0.85); }
+.pause-panel {
+  text-align: center;
+  max-width: 580px;
+  padding: 24px;
+  background: #0e1017;
+  border: 3px solid #ff9d00;
+  box-shadow: 0 0 35px rgba(255, 157, 0, 0.25);
+}
+.pause-title {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(34px, 6vw, 60px);
+  color: #ff9d00;
+  letter-spacing: 4px;
+  text-shadow: 3px 3px 0 #000;
+}
+.pause-sub {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 14px;
+  color: #7CE7FF;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+.pause-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid #444;
+  padding: 16px 24px;
+  margin-bottom: 22px;
+  text-align: left;
+}
+.pause-stats div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #aaa;
+}
+.pause-stats b {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 18px;
+  color: #fff;
+}
+.pause-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pause-actions button {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: #000;
+  background: #ff9d00;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pause-actions button:hover { background: #ffc35c; }
+#btn-pause-sound {
+  background: #2a2e3d;
+  color: #7CE7FF;
+  border: 1px solid #7CE7FF;
+}
+#btn-pause-sound:hover {
+  background: #7CE7FF;
+  color: #000;
+}
+
 /* ---------- Tela BUSTED ---------- */
-#busted { background: rgba(0, 0, 0, 0.88); }
+#busted { background: rgba(0, 0, 0, 0.92); }
 .busted-panel { text-align: center; }
 .busted-line1 {
   font-family: Impact, 'Arial Black', sans-serif;
@@ -355,6 +561,7 @@ html, body {
   margin: 22px auto 26px;
   font-size: 15px;
   line-height: 1.5;
+  padding: 0 16px;
 }
 #btn-busted-restart,
 #btn-victory-restart,
@@ -367,13 +574,17 @@ html, body {
   border: none;
   padding: 14px 40px;
   cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
 }
 #btn-busted-restart:hover,
 #btn-victory-restart:hover,
-#btn-start:hover { background: #ffc35c; }
+#btn-start:hover {
+  background: #ffc35c;
+  transform: scale(1.02);
+}
 
 /* ---------- Tela WASTED (vida zerada) ---------- */
-#wasted { background: rgba(18, 0, 0, 0.9); }
+#wasted { background: rgba(24, 0, 0, 0.94); }
 .wasted-panel { text-align: center; }
 .wasted-line1 {
   font-family: Impact, 'Arial Black', sans-serif;
@@ -395,6 +606,7 @@ html, body {
   margin: 22px auto 26px;
   font-size: 15px;
   line-height: 1.5;
+  padding: 0 16px;
 }
 #btn-wasted-restart {
   font-family: Impact, 'Arial Black', sans-serif;
@@ -405,11 +617,15 @@ html, body {
   border: none;
   padding: 14px 40px;
   cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
 }
-#btn-wasted-restart:hover { background: #ffc35c; }
+#btn-wasted-restart:hover {
+  background: #ffc35c;
+  transform: scale(1.02);
+}
 
 /* ---------- Tela de vitória ---------- */
-.victory-panel { text-align: center; }
+.victory-panel { text-align: center; padding: 20px; }
 .victory-line1 {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: clamp(40px, 8vw, 92px);
@@ -423,22 +639,23 @@ html, body {
   color: #fff;
   letter-spacing: 8px;
   text-shadow: 3px 3px 0 #000;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .victory-stats {
   display: inline-flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   border: 2px solid #ff9d00;
   padding: 18px 34px;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
   text-align: left;
+  min-width: 320px;
 }
 .victory-stats div {
   display: flex;
   justify-content: space-between;
-  gap: 40px;
+  gap: 30px;
   font-size: 14px;
   color: #aaa;
   letter-spacing: 1px;
@@ -447,6 +664,10 @@ html, body {
   font-family: Impact, 'Arial Black', sans-serif;
   font-size: 20px;
   color: #7CE77C;
+}
+.highlight-rank {
+  color: #ffd700 !important;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
 }
 
 /* ---------- Tela inicial ---------- */
@@ -481,9 +702,60 @@ html, body {
   color: #ffd9a0;
   font-size: 13.5px;
   line-height: 1.7;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   border-left: 4px solid #ff9d00;
   padding: 12px 16px;
   margin-bottom: 26px;
   text-align: left;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE (Telas menores / Mobile)
+   ========================================================================== */
+@media (max-width: 768px) {
+  #mission-box {
+    width: 220px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .mission-title { font-size: 13px; }
+  #status-box {
+    min-width: 170px;
+    padding: 8px 10px;
+  }
+  #money { font-size: 24px; }
+  #wanted { font-size: 18px; }
+  .bar { width: 90px; }
+  #radar-wrap {
+    bottom: 10px;
+    left: 10px;
+  }
+  #radar {
+    width: 140px;
+    height: 140px;
+  }
+  #btn-restart {
+    bottom: 10px;
+    right: 10px;
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  #controls-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #status-box {
+    min-width: 150px;
+  }
+  #indicator {
+    top: 5px;
+  }
+  #arrow {
+    font-size: 26px;
+  }
+  #indicator-text {
+    font-size: 11px;
+  }
 }

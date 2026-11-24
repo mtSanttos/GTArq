@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GTArq — Cidade da Arquitetura Computacional</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -25,8 +25,13 @@
       <div id="mission-progress">TERMINAIS: 0 / 15</div>
     </div>
 
-    <!-- Status (topo direito): grana, estrelas de procurado, integridade -->
+    <!-- Status (topo direito): grana, estrelas, vida, estamina, tempo, controles rápidos -->
     <div id="status-box">
+      <div class="status-top-row">
+        <button id="btn-sound" class="hud-icon-btn" title="Alternar som (M)" aria-label="Alternar som">🔊</button>
+        <button id="btn-pause" class="hud-icon-btn" title="Pausar jogo (ESC / P)" aria-label="Pausar jogo">⏸</button>
+        <div id="hud-timer">00:00</div>
+      </div>
       <div id="money">$0</div>
       <div id="wanted">
         <span class="star" data-i="0">★</span>
@@ -39,6 +44,10 @@
       <div id="integrity-wrap">
         <span class="bar-label">VIDA</span>
         <div class="bar"><div id="integrity-bar"></div></div>
+      </div>
+      <div id="stamina-wrap">
+        <span class="bar-label">FÔLEGO</span>
+        <div class="bar"><div id="stamina-bar"></div></div>
       </div>
     </div>
 
@@ -61,7 +70,24 @@
     <button id="btn-restart" title="Reiniciar o jogo do zero">REINICIAR JOGO</button>
 
     <!-- Legenda de controles -->
-    <div id="controls-hint">WASD / SETAS: mover &nbsp;•&nbsp; E / ENTER: interagir &nbsp;•&nbsp; CUIDADO COM O TRÂNSITO E A POLÍCIA</div>
+    <div id="controls-hint">WASD / SETAS: mover • SHIFT: correr • E / ENTER: interagir • ESC / P: pausar • M: som</div>
+
+    <!-- Controles virtuais na tela para celulares e telas touch -->
+    <div id="touch-controls" class="hidden">
+      <div id="touch-dpad">
+        <button class="touch-btn touch-up" data-dir="up">▲</button>
+        <div class="touch-mid-row">
+          <button class="touch-btn touch-left" data-dir="left">◀</button>
+          <div class="touch-center"></div>
+          <button class="touch-btn touch-right" data-dir="right">▶</button>
+        </div>
+        <button class="touch-btn touch-down" data-dir="down">▼</button>
+      </div>
+      <div id="touch-actions">
+        <button id="touch-sprint" class="touch-action-btn">CORRER</button>
+        <button id="touch-interact" class="touch-action-btn">E (AÇÃO)</button>
+      </div>
+    </div>
   </div>
 
   <!-- =========================================================
@@ -76,7 +102,27 @@
         <div id="modal-options"></div>
         <div id="modal-hint" class="hidden"></div>
         <div id="modal-feedback" class="hidden"></div>
-        <button id="btn-continue" class="hidden">CONTINUAR</button>
+        <button id="btn-continue" class="hidden">CONTINUAR (ENTER)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TELA DE PAUSA (ESC / P)
+       ========================================================= -->
+  <div id="pause" class="overlay hidden">
+    <div class="pause-panel">
+      <div class="pause-title">JOGO PAUSADO</div>
+      <div class="pause-sub">GTArq — CIDADE DA ARQUITETURA COMPUTACIONAL</div>
+      <div class="pause-stats">
+        <div><span>TEMPO DECORRIDO</span><b id="pause-timer">00:00</b></div>
+        <div><span>TERMINAIS RESTANTES</span><b id="pause-remaining">15 / 15</b></div>
+        <div><span>NÍVEL DE PROCURADO</span><b id="pause-wanted">0 ESTRELAS</b></div>
+      </div>
+      <div class="pause-actions">
+        <button id="btn-resume">CONTINUAR (ESC)</button>
+        <button id="btn-pause-sound">SOM: ATIVADO</button>
+        <button id="btn-pause-restart">REINICIAR PARTIDA</button>
       </div>
     </div>
   </div>
@@ -88,8 +134,8 @@
     <div class="busted-panel">
       <div class="busted-line1">SE FERROU</div>
       <div class="busted-line2">BUSTED</div>
-      <div class="busted-desc">A polícia da cidade tech te alcançou! Estrelas altas significam perseguição — acerte os terminais para baixar a temperatura.</div>
-      <button id="btn-busted-restart">REINICIAR</button>
+      <div class="busted-desc">A polícia da cidade tech te alcançou! Estrelas altas significam perseguição implacável — acerte os terminais para dispersar as viaturas.</div>
+      <button id="btn-busted-restart">REINICIAR (ENTER / R)</button>
     </div>
   </div>
 
@@ -100,8 +146,8 @@
     <div class="wasted-panel">
       <div class="wasted-line1">VIDAS ACABARAM</div>
       <div class="wasted-line2">WASTED</div>
-      <div class="wasted-desc">Sua vida chegou a zero: erros de resposta e atropelamentos do trânsito da cidade tech foram demais. Atenção ao asfalto!</div>
-      <button id="btn-wasted-restart">REINICIAR</button>
+      <div class="wasted-desc">Sua vida chegou a zero: erros conceituais nos terminais e atropelamentos no asfalto foram fatais. Cuidado ao atravessar as pistas!</div>
+      <button id="btn-wasted-restart">REINICIAR (ENTER / R)</button>
     </div>
   </div>
 
@@ -114,10 +160,12 @@
       <div class="victory-line2">CIDADE DOMINADA</div>
       <div class="victory-stats">
         <div><span>PONTUAÇÃO TOTAL</span><b id="victory-score">$0</b></div>
+        <div><span>TEMPO TOTAL</span><b id="victory-time">00:00</b></div>
         <div><span>MISSÕES COMPLETAS</span><b id="victory-missions">15 / 15</b></div>
         <div><span>ERROS COMETIDOS</span><b id="victory-errors">0</b></div>
+        <div><span>CLASSIFICAÇÃO</span><b id="victory-rank" class="highlight-rank">S+ ARQUITETO SUPREMO</b></div>
       </div>
-      <button id="btn-victory-restart">JOGAR NOVAMENTE</button>
+      <button id="btn-victory-restart">JOGAR NOVAMENTE (ENTER / R)</button>
     </div>
   </div>
 
@@ -130,15 +178,15 @@
       <div class="title-sub">A CIDADE DA ARQUITETURA COMPUTACIONAL</div>
       <div class="title-desc">
         Navegue pelas 4 regiões da cidade tech, acesse os 15 terminais e responda
-        as perguntas de Arquitetura Computacional. Acerte para ganhar grana e
-        respeito; erre e a polícia de alta tecnologia vai atrás de você!
+        às perguntas de Arquitetura Computacional. Acerte para faturar grana e
+        respeito acadêmico; erre e a polícia de alta tecnologia vai atrás de você!
       </div>
       <div class="title-rules">
-        <b>CONTROLES:</b> WASD ou SETAS para mover • E ou ENTER para interagir<br>
-        <b>REGRAS:</b> Certeza = +$1.000 e −1 estrela • Erro = +1 estrela (máx. 5 = BUSTED)<br>
-        <b>PERIGO:</b> Atropelamento = −22 de vida (zero = WASTED) • Estrelas = polícia persegue e prende ao encostar
+        <b>CONTROLES:</b> WASD / SETAS mover • SHIFT correr • E / ENTER interagir • ESC pausar • M som<br>
+        <b>REGRAS:</b> Acerto = +$1.000, +10 de vida e −1 estrela • Erro = +1 estrela (máx. 5 = BUSTED) e −15 de vida<br>
+        <b>PERIGO:</b> Atropelamento = −22 de vida (zero = WASTED) • Viaturas perseguem e prendem ao encostar!
       </div>
-      <button id="btn-start">COMEÇAR</button>
+      <button id="btn-start">COMEÇAR (ENTER)</button>
     </div>
   </div>
 
